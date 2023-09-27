@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
+  username  String      @unique
+  password  String
+  role      String
+  createdAt DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  // drivers     drivers? @relation(fields: [driverid], references: [driverid], onDelete: NoAction,onUpdate: NoAction)
+  driverid   Int?      @unique
+  shipments shipments[]
+}
+
+model drivers {
+  driverid      Int    @id @default(autoincrement())
+  vehiclenumber String @db.VarChar(255)
+  licensenumber String @db.VarChar(255)
+  contactnumber String @db.VarChar(20)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model shipments {
+  shipmentid          Int       @id @default(autoincrement())
+  customername        String    @db.VarChar(255)
+  destinationaddress  String
+  shipmentstatus      String    @db.VarChar(20)
+  assigneddriverid    Int?
+  planneddeliverydate DateTime? @db.Date
+  actualdeliverydate  DateTime? @db.Date
+  User                User?     @relation(fields: [assigneddriverid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
